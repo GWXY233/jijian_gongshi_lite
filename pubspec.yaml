@@ -1,7 +1,7 @@
 name: jijian_gongshi_lite
 description: 极简工时 Lite
 publish_to: 'none'
-version: 1.0.0+1
+version: 1.0.1+1
 
 environment:
   sdk: ">=3.8.0 <4.0.0"
