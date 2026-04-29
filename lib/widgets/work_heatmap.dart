@@ -37,10 +37,10 @@ class WorkHeatmap extends StatelessWidget {
       dailyTotals[key] = (dailyTotals[key] ?? 0) + r.hoursWorked;
     }
 
-    final cellSize = 9.0;
-    final gap = 3.0;
-    final colW = cellSize + gap;
-    final rowH = cellSize + gap;
+    const cellSize = 16.0;
+    const gap = 4.0;
+    const colW = cellSize + gap;
+    const rowH = cellSize + gap;
 
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
@@ -49,7 +49,7 @@ class WorkHeatmap extends StatelessWidget {
         children: [
           Column(
             children: [
-              const SizedBox(height: 18),
+              const SizedBox(height: 22),
               for (int d = 0; d < 7; d++) ...[
                 if (_weekdayLabelRows.contains(d))
                   SizedBox(
@@ -57,7 +57,7 @@ class WorkHeatmap extends StatelessWidget {
                     child: Center(
                       child: Text(
                         _weekdayLabels[d == 0 ? 0 : d == 2 ? 1 : 2],
-                        style: const TextStyle(fontSize: 9),
+                        style: const TextStyle(fontSize: 12),
                       ),
                     ),
                   )
@@ -66,12 +66,12 @@ class WorkHeatmap extends StatelessWidget {
               ],
             ],
           ),
-          const SizedBox(width: 4),
+          const SizedBox(width: 6),
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               SizedBox(
-                height: 18,
+                height: 22,
                 child: Row(
                   children: [
                     for (int w = 0; w < 15; w++) ...[
@@ -104,6 +104,7 @@ class WorkHeatmap extends StatelessWidget {
                           isDark,
                         ),
                         size: cellSize,
+                        gap: gap,
                       ),
                     ],
                   ],
@@ -128,7 +129,7 @@ class _MonthLabel extends StatelessWidget {
       width: width,
       child: Text(
         '${date.month}月',
-        style: const TextStyle(fontSize: 9),
+        style: const TextStyle(fontSize: 12),
       ),
     );
   }
@@ -140,6 +141,7 @@ class _HeatmapCell extends StatelessWidget {
   final double hours;
   final Color color;
   final double size;
+  final double gap;
 
   const _HeatmapCell({
     required this.date,
@@ -147,22 +149,21 @@ class _HeatmapCell extends StatelessWidget {
     required this.hours,
     required this.color,
     required this.size,
+    required this.gap,
   });
 
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.only(right: 3, bottom: 3),
+      padding: EdgeInsets.only(right: gap, bottom: gap),
       child: Tooltip(
         message: '${date.month}月${date.day}日 ${hours.toStringAsFixed(1)}h',
         child: Container(
           width: size,
           height: size,
           decoration: BoxDecoration(
-            color: date.isAfter(today)
-                ? Colors.transparent
-                : color,
-            borderRadius: BorderRadius.circular(2),
+            color: date.isAfter(today) ? Colors.transparent : color,
+            borderRadius: BorderRadius.circular(3),
           ),
         ),
       ),
