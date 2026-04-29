@@ -62,26 +62,78 @@ class _SummaryCard extends StatelessWidget {
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
 
-  static const _weekdays = ['一', '二', '三', '四', '五', '六', '日'];
-
-  void _confirmDelete(BuildContext context, WidgetRef ref, String id) {
-    showDialog(
+  void _showRecordActions(BuildContext context, WidgetRef ref, WorkRecord record) {
+    final theme = Theme.of(context);
+    showModalBottomSheet(
       context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('删除记录'),
-        content: const Text('确认删除这条记录？'),
-        actions: [
-          TextButton(
-              onPressed: () => Navigator.pop(ctx),
-              child: const Text('取消')),
-          TextButton(
-            onPressed: () {
-              ref.read(recordsProvider.notifier).deleteRecord(id);
-              Navigator.pop(ctx);
-            },
-            child: const Text('确认', style: TextStyle(color: Colors.red)),
-          ),
-        ],
+      backgroundColor: theme.colorScheme.surface,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (ctx) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Center(
+              child: Container(
+                width: 40,
+                height: 4,
+                margin: const EdgeInsets.symmetric(vertical: 12),
+                decoration: BoxDecoration(
+                  color: Colors.grey.shade300,
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+            ),
+            ListTile(
+              leading: const Icon(Icons.edit_outlined, color: Color(0xFF6C63FF)),
+              title: const Text('编辑'),
+              onTap: () {
+                Navigator.pop(ctx);
+                showModalBottomSheet(
+                  context: context,
+                  isScrollControlled: true,
+                  backgroundColor: theme.colorScheme.surface,
+                  shape: const RoundedRectangleBorder(
+                    borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+                  ),
+                  builder: (_) => ProviderScope(
+                    parent: ProviderScope.containerOf(context),
+                    child: AddRecordSheet(record: record),
+                  ),
+                );
+              },
+            ),
+            const Divider(height: 1, indent: 16),
+            ListTile(
+              leading: const Icon(Icons.delete_outlined, color: Colors.red),
+              title: const Text('删除', style: TextStyle(color: Colors.red)),
+              onTap: () {
+                Navigator.pop(ctx);
+                showDialog(
+                  context: context,
+                  builder: (d) => AlertDialog(
+                    title: const Text('删除记录'),
+                    content: const Text('确认删除这条记录？'),
+                    actions: [
+                      TextButton(
+                          onPressed: () => Navigator.pop(d),
+                          child: const Text('取消')),
+                      TextButton(
+                        onPressed: () {
+                          ref.read(recordsProvider.notifier).deleteRecord(record.id);
+                          Navigator.pop(d);
+                        },
+                        child: const Text('确认', style: TextStyle(color: Colors.red)),
+                      ),
+                    ],
+                  ),
+                );
+              },
+            ),
+            const SizedBox(height: 8),
+          ],
+        ),
       ),
     );
   }
@@ -219,8 +271,8 @@ class HomeScreen extends ConsumerWidget {
                             child: RecordCard(
                               record: r,
                               hourlyRate: rate,
-                              onDelete: () =>
-                                  _confirmDelete(context, ref, r.id),
+                              onLongPress: () =>
+                                  _showRecordActions(context, ref, r),
                             ),
                           ))
                       .toList(),

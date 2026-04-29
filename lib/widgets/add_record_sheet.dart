@@ -1,21 +1,39 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:uuid/uuid.dart';
 
 import '../models/work_record.dart';
 import '../providers/records_provider.dart';
 import '../providers/settings_provider.dart';
 
 class AddRecordSheet extends ConsumerStatefulWidget {
-  const AddRecordSheet({super.key});
+  final WorkRecord? record;
+
+  const AddRecordSheet({super.key, this.record});
 
   @override
   ConsumerState<AddRecordSheet> createState() => _AddRecordSheetState();
 }
 
 class _AddRecordSheetState extends ConsumerState<AddRecordSheet> {
-  DateTime _date = DateTime.now();
-  int _startMinutes = 9 * 60;
-  int _endMinutes = 18 * 60;
+  late DateTime _date;
+  late int _startMinutes;
+  late int _endMinutes;
+
+  @override
+  void initState() {
+    super.initState();
+    final r = widget.record;
+    if (r != null) {
+      _date = r.date;
+      _startMinutes = r.startMinutes;
+      _endMinutes = r.endMinutes;
+    } else {
+      _date = DateTime.now();
+      _startMinutes = 9 * 60;
+      _endMinutes = 18 * 60;
+    }
+  }
 
   String _fmt(int minutes) {
     final h = minutes ~/ 60;
@@ -37,7 +55,9 @@ class _AddRecordSheetState extends ConsumerState<AddRecordSheet> {
   }
 
   void _save() {
-    final record = WorkRecord.create(
+    final existing = widget.record;
+    final record = WorkRecord(
+      id: existing?.id ?? const Uuid().v4(),
       date: DateTime(_date.year, _date.month, _date.day),
       startMinutes: _startMinutes,
       endMinutes: _endMinutes,
@@ -76,6 +96,7 @@ class _AddRecordSheetState extends ConsumerState<AddRecordSheet> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final bottomInset = MediaQuery.of(context).viewInsets.bottom;
+    final isEditing = widget.record != null;
     return SafeArea(
       bottom: true,
       child: Padding(
@@ -94,11 +115,11 @@ class _AddRecordSheetState extends ConsumerState<AddRecordSheet> {
                 ),
               ),
             ),
-            const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 20),
-              child: Text('记录工时',
-                  style:
-                      TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: Text(isEditing ? '编辑工时' : '记录工时',
+                  style: const TextStyle(
+                      fontWeight: FontWeight.bold, fontSize: 18)),
             ),
             const SizedBox(height: 16),
             _buildRow(
@@ -146,9 +167,7 @@ class _AddRecordSheetState extends ConsumerState<AddRecordSheet> {
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 15,
-                  color: _isValid
-                      ? const Color(0xFF6C63FF)
-                      : Colors.red,
+                  color: _isValid ? const Color(0xFF6C63FF) : Colors.red,
                 ),
               ),
             ),
@@ -168,8 +187,8 @@ class _AddRecordSheetState extends ConsumerState<AddRecordSheet> {
                   ),
                   onPressed: _isValid ? _save : null,
                   child: const Text('保存',
-                      style:
-                          TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                      style: TextStyle(
+                          fontWeight: FontWeight.bold, fontSize: 16)),
                 ),
               ),
             ),

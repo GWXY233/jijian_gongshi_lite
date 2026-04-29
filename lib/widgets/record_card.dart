@@ -5,13 +5,13 @@ import '../models/work_record.dart';
 class RecordCard extends StatelessWidget {
   final WorkRecord record;
   final double hourlyRate;
-  final VoidCallback onDelete;
+  final VoidCallback onLongPress;
 
   const RecordCard({
     super.key,
     required this.record,
     required this.hourlyRate,
-    required this.onDelete,
+    required this.onLongPress,
   });
 
   static const _weekdays = ['一', '二', '三', '四', '五', '六', '日'];
@@ -24,7 +24,7 @@ class RecordCard extends StatelessWidget {
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: InkWell(
         borderRadius: BorderRadius.circular(16),
-        onLongPress: onDelete,
+        onLongPress: onLongPress,
         child: Padding(
           padding: const EdgeInsets.all(16),
           child: Row(
